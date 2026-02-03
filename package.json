@@ -11,7 +11,10 @@
     "clean-port": "fuser -k 3000/tcp 2>/dev/null || true"
   },
   "dependencies": {
-    "hono": "^4.11.7"
+    "canvas": "^3.2.1",
+    "hono": "^4.11.7",
+    "jspdf": "^4.1.0",
+    "jspdf-autotable": "^5.0.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250705.0",

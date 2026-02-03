@@ -182,18 +182,190 @@ window.toggleDetails = function(id) {
 }
 
 // Download PDF
-document.getElementById('downloadBtn').addEventListener('click', () => {
-    const reportContent = document.getElementById('reportContent').innerText;
-    const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `dust_report_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+document.getElementById('downloadBtn').addEventListener('click', async () => {
+    if (!currentAnalysis || !currentData) {
+        alert('لا توجد بيانات لتوليد التقرير');
+        return;
+    }
+
+    try {
+        // Show loading
+        document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> جاري التوليد...';
+        document.getElementById('downloadBtn').disabled = true;
+
+        // Prepare data for PDF
+        const reportDate = document.getElementById('startDate').value;
+        const network = document.getElementById('networkSelect').value;
+        
+        // Get active countries
+        const activeCountries = getActiveCountries(currentAnalysis);
+        
+        // Get country summary
+        const countrySummary = getCountrySummary(currentAnalysis, network);
+        
+        // Calculate wind rose data
+        const windRoseData = calculateWindRose(currentAnalysis);
+        
+        // Enhance station data
+        const enhancedStations = enhanceStationData(currentAnalysis.byStation);
+
+        const reportData = {
+            analysis: {
+                ...currentAnalysis,
+                byStation: enhancedStations
+            },
+            activeCountries: activeCountries,
+            countrySummary: countrySummary,
+            windRoseData: windRoseData
+        };
+
+        // Generate PDF
+        const pdfGen = new window.DustReportPDFGenerator();
+        pdfGen.generateReport(reportData, reportDate);
+        
+        // Download
+        const filename = `Dust_Detailed_Report_${reportDate.replace(/-/g, '')}.pdf`;
+        pdfGen.save(filename);
+
+        // Reset button
+        document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-download mr-2"></i> تحميل PDF';
+        document.getElementById('downloadBtn').disabled = false;
+
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        alert('حدث خطأ في توليد PDF: ' + error.message);
+        document.getElementById('downloadBtn').innerHTML = '<i class="fas fa-download mr-2"></i> تحميل PDF';
+        document.getElementById('downloadBtn').disabled = false;
+    }
 });
+
+// Helper function to get active countries
+function getActiveCountries(analysis) {
+    const active = [];
+    if (analysis.totalReports > 0) {
+        // Extract unique countries from station codes
+        const stations = analysis.byStation.map(s => s.station);
+        const countries = new Set();
+        
+        stations.forEach(station => {
+            if (station.startsWith('OJ')) countries.add('Jordan');
+            else if (station.startsWith('OM')) countries.add('United Arab Emirates');
+            else if (station.startsWith('OE')) countries.add('Saudi Arabia');
+            else if (station.startsWith('OK')) countries.add('Kuwait');
+            else if (station.startsWith('OB')) countries.add('Bahrain');
+            else if (station.startsWith('OO')) countries.add('Oman');
+            else if (station.startsWith('OY')) countries.add('Yemen');
+            else if (station.startsWith('OR')) countries.add('Iraq');
+            else if (station.startsWith('OS')) countries.add('Syria');
+        });
+        
+        return Array.from(countries);
+    }
+    return active;
+}
+
+// Helper function to get country summary
+function getCountrySummary(analysis, selectedNetwork) {
+    const countries = [
+        'Saudi Arabia', 'Kuwait', 'Bahrain', 'Qatar', 'UAE',
+        'Oman', 'Yemen', 'Jordan', 'Iraq', 'Syria', 'Lebanon', 'Iran'
+    ];
+    
+    const summary = countries.map(country => ({
+        country: country,
+        bldu: 0,
+        blsa: 0,
+        du: 0,
+        sa: 0,
+        ds: 0,
+        ss: 0,
+        total: 0
+    }));
+
+    // Count by type
+    analysis.byStation.forEach(station => {
+        let countryIndex = -1;
+        
+        if (station.station.startsWith('OJ')) countryIndex = 7; // Jordan
+        else if (station.station.startsWith('OM')) countryIndex = 4; // UAE
+        else if (station.station.startsWith('OE')) countryIndex = 0; // Saudi Arabia
+        
+        if (countryIndex >= 0) {
+            station.reports.forEach(report => {
+                const codes = (report.wxcodes || '').split(/[\s,]+/);
+                codes.forEach(code => {
+                    if (code === 'BLDU') summary[countryIndex].bldu++;
+                    else if (code === 'BLSA') summary[countryIndex].blsa++;
+                    else if (code === 'DU') summary[countryIndex].du++;
+                    else if (code === 'SA') summary[countryIndex].sa++;
+                    else if (code.includes('DS')) summary[countryIndex].ds++;
+                    else if (code.includes('SS')) summary[countryIndex].ss++;
+                });
+                summary[countryIndex].total++;
+            });
+        }
+    });
+
+    return summary;
+}
+
+// Helper function to calculate wind rose data
+function calculateWindRose(analysis) {
+    const directions = {};
+    
+    analysis.byStation.forEach(station => {
+        station.reports.forEach(report => {
+            if (report.drct && report.drct !== 'M') {
+                const dir = Math.round(parseFloat(report.drct) / 45) * 45;
+                directions[dir] = (directions[dir] || 0) + 1;
+            }
+        });
+    });
+
+    const total = Object.values(directions).reduce((a, b) => a + b, 0);
+    
+    return Object.entries(directions).map(([dir, count]) => ({
+        direction: parseInt(dir),
+        frequency: (count / total) * 100
+    }));
+}
+
+// Helper function to enhance station data
+function enhanceStationData(stations) {
+    return stations.map(station => {
+        const winds = [];
+        const directions = [];
+        const phenomena = new Set();
+
+        station.reports.forEach(report => {
+            if (report.sknt && report.sknt !== 'M') {
+                winds.push(parseFloat(report.sknt));
+            }
+            if (report.drct && report.drct !== 'M') {
+                directions.push(parseFloat(report.drct));
+            }
+            if (report.wxcodes) {
+                report.wxcodes.split(/[\s,]+/).forEach(c => phenomena.add(c));
+            }
+        });
+
+        return {
+            ...station,
+            minWind: winds.length > 0 ? Math.min(...winds) : 0,
+            maxWind: winds.length > 0 ? Math.max(...winds) : 0,
+            avgDirection: directions.length > 0 ? 
+                getDirectionName(directions.reduce((a, b) => a + b, 0) / directions.length) : 'N/A',
+            phenomena: Array.from(phenomena).join(', ')
+        };
+    });
+}
+
+// Get direction name from degrees
+function getDirectionName(degrees) {
+    const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+    const index = Math.round(degrees / 45) % 8;
+    return `${Math.round(degrees)}°/${dirs[index]}`;
+}
 
 // Helper Functions
 function getNetworkName(code) {
