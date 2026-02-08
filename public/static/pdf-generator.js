@@ -39,25 +39,48 @@ class DustReportPDFGenerator {
         const dayName = days[dateObj.getDay()];
         const formattedDate = `${dayName} - (${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()})`;
 
-        // Background rectangle for header
-        this.doc.setFillColor(...this.colors.primary);
-        this.doc.rect(0, 0, this.pageWidth, 40, 'F');
+        // White background for header
+        this.doc.setFillColor(255, 255, 255);
+        this.doc.rect(0, 0, this.pageWidth, 50, 'F');
 
-        // Title
-        this.doc.setTextColor(255, 255, 255);
-        this.doc.setFontSize(20);
+        // Add logo (left side)
+        try {
+            const logoImg = document.getElementById('ncm-logo-img');
+            if (logoImg && logoImg.complete) {
+                this.doc.addImage(logoImg, 'PNG', 10, 8, 30, 30);
+            }
+        } catch (e) {
+            console.warn('Logo not loaded:', e);
+        }
+
+        // Title (center)
+        this.doc.setTextColor(41, 69, 144); // Dark blue
+        this.doc.setFontSize(18);
         this.doc.setFont('helvetica', 'bold');
-        this.doc.text('Dust and Sandstorm Events', this.pageWidth / 2, 15, { align: 'center' });
+        this.doc.text('المركز الإقليمي للعواصف الغبارية والرملية', this.pageWidth / 2, 18, { align: 'center' });
         
+        this.doc.setFontSize(14);
+        this.doc.setTextColor(0, 0, 0);
+        this.doc.text('Sand and Dust Storm Regional Center', this.pageWidth / 2, 25, { align: 'center' });
+
+        // Report title
         this.doc.setFontSize(16);
-        this.doc.text('in Saudi Arabia and the Region', this.pageWidth / 2, 22, { align: 'center' });
+        this.doc.setFont('helvetica', 'bold');
+        this.doc.setTextColor(41, 128, 185);
+        this.doc.text('Dust and Sandstorm Events Report', this.pageWidth / 2, 34, { align: 'center' });
 
         // Date
-        this.doc.setFontSize(12);
+        this.doc.setFontSize(11);
         this.doc.setFont('helvetica', 'normal');
-        this.doc.text(`Start Date: ${formattedDate}`, this.pageWidth / 2, 32, { align: 'center' });
+        this.doc.setTextColor(100, 100, 100);
+        this.doc.text(`Start Date: ${formattedDate}`, this.pageWidth / 2, 42, { align: 'center' });
 
-        this.currentY = 50;
+        // Blue line separator
+        this.doc.setDrawColor(41, 128, 185);
+        this.doc.setLineWidth(0.5);
+        this.doc.line(this.margin, 48, this.pageWidth - this.margin, 48);
+
+        this.currentY = 55;
     }
 
     // Add Summary Section
