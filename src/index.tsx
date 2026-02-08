@@ -143,15 +143,18 @@ app.get('/', (c) => {
     </head>
     <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
         <!-- Header -->
-        <header class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-lg">
-            <div class="container mx-auto px-4 py-6">
+        <header class="bg-white shadow-lg border-b-4 border-blue-600">
+            <div class="container mx-auto px-4 py-4">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-wind text-4xl"></i>
-                        <div>
-                            <h1 class="text-2xl md:text-3xl font-bold">مولد تقارير العواصف الغبارية</h1>
-                            <p class="text-blue-100 text-sm">تحليل بيانات METAR اليومية للسعودية والمنطقة</p>
-                        </div>
+                    <!-- Logo -->
+                    <div class="flex items-center gap-4">
+                        <img src="/static/ncm-logo.png" alt="المركز الوطني للأرصاد" class="h-20 md:h-24 w-auto">
+                    </div>
+                    <!-- Title -->
+                    <div class="text-center flex-1">
+                        <h1 class="text-2xl md:text-3xl font-bold text-blue-900">المركز الإقليمي للعواصف الغبارية والرملية</h1>
+                        <p class="text-blue-700 text-base md:text-lg font-semibold mt-1">Sand and Dust Storm Regional Center</p>
+                        <p class="text-gray-600 text-sm mt-2">مولد تقارير تحليل بيانات METAR اليومية</p>
                     </div>
                 </div>
             </div>
