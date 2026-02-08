@@ -43,44 +43,50 @@ class DustReportPDFGenerator {
         this.doc.setFillColor(255, 255, 255);
         this.doc.rect(0, 0, this.pageWidth, 50, 'F');
 
-        // Add logo (left side)
+        // Add full logo banner as image
         try {
-            const logoImg = document.getElementById('ncm-logo-img');
+            const logoImg = document.getElementById('ncm-logo-banner');
             if (logoImg && logoImg.complete) {
-                this.doc.addImage(logoImg, 'PNG', 10, 8, 30, 30);
+                // Add full banner image (includes both logos and Arabic/English text)
+                this.doc.addImage(logoImg, 'PNG', 0, 0, this.pageWidth, 45);
             }
         } catch (e) {
-            console.warn('Logo not loaded:', e);
+            console.warn('Logo banner not loaded, using fallback:', e);
+            // Fallback: show logo and English text only
+            try {
+                const logoImg = document.getElementById('ncm-logo-img');
+                if (logoImg && logoImg.complete) {
+                    this.doc.addImage(logoImg, 'PNG', 10, 8, 30, 30);
+                }
+            } catch (e2) {
+                console.warn('Logo not loaded:', e2);
+            }
+            
+            // English-only fallback
+            this.doc.setTextColor(41, 69, 144);
+            this.doc.setFontSize(16);
+            this.doc.setFont('helvetica', 'bold');
+            this.doc.text('Sand and Dust Storm Regional Center', this.pageWidth / 2, 18, { align: 'center' });
         }
-
-        // Title (center)
-        this.doc.setTextColor(41, 69, 144); // Dark blue
-        this.doc.setFontSize(18);
-        this.doc.setFont('helvetica', 'bold');
-        this.doc.text('المركز الإقليمي للعواصف الغبارية والرملية', this.pageWidth / 2, 18, { align: 'center' });
-        
-        this.doc.setFontSize(14);
-        this.doc.setTextColor(0, 0, 0);
-        this.doc.text('Sand and Dust Storm Regional Center', this.pageWidth / 2, 25, { align: 'center' });
 
         // Report title
         this.doc.setFontSize(16);
         this.doc.setFont('helvetica', 'bold');
         this.doc.setTextColor(41, 128, 185);
-        this.doc.text('Dust and Sandstorm Events Report', this.pageWidth / 2, 34, { align: 'center' });
+        this.doc.text('Dust and Sandstorm Events Report', this.pageWidth / 2, 52, { align: 'center' });
 
         // Date
         this.doc.setFontSize(11);
         this.doc.setFont('helvetica', 'normal');
         this.doc.setTextColor(100, 100, 100);
-        this.doc.text(`Start Date: ${formattedDate}`, this.pageWidth / 2, 42, { align: 'center' });
+        this.doc.text(`Start Date: ${formattedDate}`, this.pageWidth / 2, 60, { align: 'center' });
 
         // Blue line separator
         this.doc.setDrawColor(41, 128, 185);
         this.doc.setLineWidth(0.5);
-        this.doc.line(this.margin, 48, this.pageWidth - this.margin, 48);
+        this.doc.line(this.margin, 66, this.pageWidth - this.margin, 66);
 
-        this.currentY = 55;
+        this.currentY = 73;
     }
 
     // Add Summary Section
