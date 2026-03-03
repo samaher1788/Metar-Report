@@ -296,9 +296,9 @@ app.get('/', (c) => {
                 <div id="dustMap3D" style="height: 700px; width: 100%; border-radius: 12px;" class="shadow-inner"></div>
                 <div class="mt-4 bg-blue-50 border-r-4 border-blue-600 p-4 rounded-lg">
                     <p class="text-sm text-gray-700">
-                        <strong>💡 تقنية مجانية:</strong>
-                        هذه الخريطة تستخدم <strong>Cesium.js</strong> - أقوى مكتبة مجانية لإنشاء خرائط ثلاثية الأبعاد مع تضاريس حقيقية من الأقمار الصناعية.
-                        لا تحتاج إلى API token أو اشتراكات مدفوعة!
+                        <strong>💡 تقنية مجانية 100%:</strong>
+                        هذه الخريطة تستخدم <strong>Cesium.js</strong> مع خرائط <strong>OpenStreetMap</strong> - 
+                        لا تحتاج إلى API token أو اشتراكات مدفوعة! مجانية تماماً ومفتوحة المصدر.
                     </p>
                 </div>
             </div>
