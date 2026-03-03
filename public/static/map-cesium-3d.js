@@ -91,15 +91,20 @@ class CesiumGlobeMapGenerator {
             // Set Cesium ion access token (using default public token)
             Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
             
+            // Create terrain provider
+            const terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1, {
+                requestWaterMask: true,
+                requestVertexNormals: true
+            });
+            
             this.viewer = new Cesium.Viewer(containerId, {
                 // Imagery provider
-                imageryProvider: new Cesium.IonImageryProvider({ assetId: 2 }),
+                baseLayer: Cesium.ImageryLayer.fromProviderAsync(
+                    Cesium.IonImageryProvider.fromAssetId(2)
+                ),
                 
                 // Terrain provider for 3D terrain
-                terrainProvider: Cesium.createWorldTerrain({
-                    requestWaterMask: true,
-                    requestVertexNormals: true
-                }),
+                terrainProvider: terrainProvider,
                 
                 // UI options
                 baseLayerPicker: false,
