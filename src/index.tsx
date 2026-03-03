@@ -155,9 +155,6 @@ app.get('/', (c) => {
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
               integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
               crossorigin=""/>
-        <!-- Cesium JS for 3D Globe -->
-        <script src="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Cesium.js"></script>
-        <link href="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
           body {
@@ -271,38 +268,6 @@ app.get('/', (c) => {
                 <div id="dustMap" class="shadow-inner"></div>
             </div>
 
-            <!-- 3D Globe Map with Cesium -->
-            <div id="map3DContainer" class="hidden bg-white rounded-xl shadow-lg p-6 mb-8">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fas fa-globe text-blue-600"></i>
-                        الكرة الأرضية ثلاثية الأبعاد 🌍
-                    </h2>
-                    <div class="flex gap-2">
-                        <button id="toggleRotationBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm">
-                            <i class="fas fa-sync-alt mr-1"></i>
-                            دوران تلقائي
-                        </button>
-                        <button id="resetViewBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors shadow-md text-sm">
-                            <i class="fas fa-undo mr-1"></i>
-                            إعادة الضبط
-                        </button>
-                    </div>
-                </div>
-                <p class="text-gray-600 mb-4 text-sm">
-                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
-                    استخدم الماوس للتحكم: سحب للتدوير، عجلة للتكبير، النقر المزدوج للتركيز على نقطة
-                </p>
-                <div id="dustMap3D" style="height: 700px; width: 100%; border-radius: 12px;" class="shadow-inner"></div>
-                <div class="mt-4 bg-blue-50 border-r-4 border-blue-600 p-4 rounded-lg">
-                    <p class="text-sm text-gray-700">
-                        <strong>💡 تقنية مجانية 100%:</strong>
-                        هذه الخريطة تستخدم <strong>Cesium.js</strong> مع خرائط <strong>OpenStreetMap</strong> - 
-                        لا تحتاج إلى API token أو اشتراكات مدفوعة! مجانية تماماً ومفتوحة المصدر.
-                    </p>
-                </div>
-            </div>
-
             <!-- Report Output -->
             <div id="reportOutput" class="hidden bg-white rounded-xl shadow-lg p-8">
                 <div class="flex justify-between items-center mb-6">
@@ -372,8 +337,6 @@ app.get('/', (c) => {
                 crossorigin=""></script>
         <!-- Map Generator -->
         <script src="/static/map-generator.js"></script>
-        <!-- Cesium 3D Globe Map Generator (Free, No Token) -->
-        <script src="/static/map-cesium-3d.js"></script>
         <!-- Original PDF Generator -->
         <script src="/static/pdf-generator.js"></script>
         <!-- Enhanced PDF Generator (matches reference report) -->
