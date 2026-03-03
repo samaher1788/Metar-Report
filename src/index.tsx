@@ -151,10 +151,7 @@ app.get('/', (c) => {
         <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet">
-        <!-- Leaflet CSS for maps -->
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-              integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-              crossorigin=""/>
+
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
           body {
@@ -182,12 +179,7 @@ app.get('/', (c) => {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
           }
-          #dustMap {
-            height: 600px;
-            width: 100%;
-            border-radius: 12px;
-            z-index: 1;
-          }
+
         </style>
     </head>
     <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
@@ -255,19 +247,6 @@ app.get('/', (c) => {
                 <p class="text-gray-600 font-semibold">جاري تحليل البيانات...</p>
             </div>
 
-            <!-- Interactive Map -->
-            <div id="mapContainer" class="hidden bg-white rounded-xl shadow-lg p-6 mb-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <i class="fas fa-map-marked-alt text-blue-600"></i>
-                    خريطة توزيع الحالات
-                </h2>
-                <p class="text-gray-600 mb-4 text-sm">
-                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
-                    اضغط على أي محطة لمشاهدة التفاصيل
-                </p>
-                <div id="dustMap" class="shadow-inner"></div>
-            </div>
-
             <!-- Report Output -->
             <div id="reportOutput" class="hidden bg-white rounded-xl shadow-lg p-8">
                 <div class="flex justify-between items-center mb-6">
@@ -331,14 +310,6 @@ app.get('/', (c) => {
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-        <!-- Leaflet JS for maps -->
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-                crossorigin=""></script>
-        <!-- Map Generator -->
-        <script src="/static/map-generator.js"></script>
-        <!-- Map Capture Utility for PDF -->
-        <script src="/static/map-capture.js"></script>
         <!-- Original PDF Generator -->
         <script src="/static/pdf-generator.js"></script>
         <!-- Enhanced PDF Generator (matches reference report) -->

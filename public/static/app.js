@@ -40,14 +40,6 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('reportOutput').classList.add('hidden');
     document.getElementById('statsCards').classList.add('hidden');
-    document.getElementById('mapContainer').classList.add('hidden');
-    
-    // Clean up previous map if exists
-    if (currentMapGenerator && currentMapGenerator.map) {
-        console.log('🧹 Cleaning up previous map before new report...');
-        currentMapGenerator.map.remove();
-        currentMapGenerator = null;
-    }
     
     try {
         // Fetch METAR data
@@ -95,9 +87,6 @@ function displayReport(data, analysis, reportDate) {
     document.getElementById('blowingCount').textContent = analysis.byType.blowing;
     document.getElementById('suspendedCount').textContent = analysis.byType.suspended;
     document.getElementById('statsCards').classList.remove('hidden');
-    
-    // Display interactive map
-    displayMap(analysis);
     
     let html = `
         <div class="mb-8">
@@ -455,60 +444,5 @@ async function generateWindRoses(analysis) {
     }
 }
 
-// Display Interactive Map
-let currentMapGenerator = null;
-
-function displayMap(analysis) {
-    console.log('🗺️ Displaying interactive map...');
-    
-    try {
-        const mapContainer = document.getElementById('mapContainer');
-        const mapElement = document.getElementById('dustMap');
-        
-        // Show map container
-        mapContainer.classList.remove('hidden');
-        
-        // Clear any existing map
-        mapElement.innerHTML = '';
-        
-        // Remove previous map generator if exists
-        if (currentMapGenerator && currentMapGenerator.map) {
-            console.log('🧹 Cleaning up previous map...');
-            currentMapGenerator.map.remove();
-            currentMapGenerator = null;
-        }
-        
-        // Check if we have station data
-        if (!analysis.stationData || analysis.stationData.length === 0) {
-            mapElement.innerHTML = '<div class="flex items-center justify-center h-full bg-gray-100 rounded-lg"><p class="text-gray-500">لا توجد بيانات محطات لعرضها على الخريطة</p></div>';
-            return;
-        }
-        
-        // Initialize new map generator
-        currentMapGenerator = new DustStormMapGenerator();
-        currentMapGenerator.generateMap('dustMap', analysis);
-        
-        // Fit map to show all markers
-        setTimeout(() => {
-            currentMapGenerator.fitBounds();
-        }, 500);
-        
-        console.log('✅ Map displayed successfully');
-        
-    } catch (error) {
-        console.error('❌ Map display failed:', error);
-        const mapElement = document.getElementById('dustMap');
-        mapElement.innerHTML = `
-            <div class="flex items-center justify-center h-full bg-red-50 rounded-lg border border-red-200">
-                <p class="text-red-600">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    حدث خطأ في عرض الخريطة: ${error.message}
-                </p>
-            </div>
-        `;
-    }
-}
-
-// Display 3D Interactive Globe with Cesium
-let cesiumGlobeGenerator = null;
+// End of app.js
 
