@@ -91,11 +91,30 @@ class DustStorm3DMapGenerator {
         this.pulseSpeed = 0.05;
     }
 
+    // Wait for Mapbox GL to be available
+    async waitForMapbox(maxAttempts = 20) {
+        for (let i = 0; i < maxAttempts; i++) {
+            if (typeof mapboxgl !== 'undefined') {
+                console.log('✅ Mapbox GL JS loaded successfully');
+                return true;
+            }
+            console.log(`⏳ Waiting for Mapbox GL (attempt ${i + 1}/${maxAttempts})...`);
+            await new Promise(resolve => setTimeout(resolve, 200));
+        }
+        throw new Error('Mapbox GL JS failed to load after ' + maxAttempts + ' attempts');
+    }
+
     // Initialize 3D map with terrain
     async initializeMap(containerId) {
+        // Wait for Mapbox GL to load
+        if (typeof mapboxgl === 'undefined') {
+            console.log('⏳ Waiting for Mapbox GL JS to load...');
+            await this.waitForMapbox();
+        }
+        
         if (!mapboxgl) {
-            console.error('Mapbox GL JS not loaded!');
-            return null;
+            console.error('❌ Mapbox GL JS failed to load!');
+            throw new Error('Mapbox GL JS is not available');
         }
         
         mapboxgl.accessToken = this.mapboxToken;
