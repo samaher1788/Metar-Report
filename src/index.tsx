@@ -413,11 +413,79 @@ function analyzeDustData(dustReports) {
     }
   })
   
+  // Enhance dust reports with METAR string for PDF generator
+  const enhancedReports = dustReports.map(report => {
+    // Create METAR string from report fields
+    const metar = report.metar || constructMetarString(report)
+    return {
+      ...report,
+      metar: metar,
+      visibility: report.vsby || '9999'
+    }
+  })
+  
   return {
     byStation: Object.values(byStation).sort((a, b) => b.count - a.count),
     byType: byType,
-    totalReports: dustReports.length
+    totalReports: dustReports.length,
+    stationData: enhancedReports, // Enhanced with METAR strings
+    byCountry: {}, // Placeholder - will be calculated in PDF generator
   }
+}
+
+// Helper function to construct METAR string from report fields
+function constructMetarString(report) {
+  const parts = []
+  
+  // Station
+  if (report.station) parts.push(report.station)
+  
+  // Time
+  if (report.valid) {
+    const date = new Date(report.valid)
+    const day = date.getUTCDate().toString().padStart(2, '0')
+    const hour = date.getUTCHours().toString().padStart(2, '0')
+    const minute = date.getUTCMinutes().toString().padStart(2, '0')
+    parts.push(`${day}${hour}${minute}Z`)
+  }
+  
+  // Wind
+  if (report.drct && report.sknt) {
+    const dir = report.drct.toString().padStart(3, '0')
+    const speed = Math.round(report.sknt).toString().padStart(2, '0')
+    if (report.gust_sknt && report.gust_sknt > report.sknt) {
+      const gust = Math.round(report.gust_sknt).toString().padStart(2, '0')
+      parts.push(`${dir}${speed}G${gust}KT`)
+    } else {
+      parts.push(`${dir}${speed}KT`)
+    }
+  }
+  
+  // Visibility
+  if (report.vsby) {
+    const vis = Math.round(parseFloat(report.vsby) * 1609.34) // miles to meters
+    parts.push(vis.toString())
+  }
+  
+  // Weather codes
+  if (report.wxcodes) {
+    parts.push(report.wxcodes)
+  }
+  
+  // Temperature/Dewpoint
+  if (report.tmpf && report.dwpf) {
+    const temp = Math.round((report.tmpf - 32) * 5 / 9)
+    const dew = Math.round((report.dwpf - 32) * 5 / 9)
+    parts.push(`${temp}/${dew}`)
+  }
+  
+  // Pressure
+  if (report.mslp) {
+    const pressure = Math.round(report.mslp)
+    parts.push(`Q${pressure}`)
+  }
+  
+  return parts.join(' ')
 }
 
 export default app
