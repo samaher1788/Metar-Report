@@ -699,14 +699,17 @@ class ReferenceDustReportPDFGenerator {
         }
     }
 
-    // Main generate function
+    // Main generate function - CORRECT SEQUENCE
     async generateReport(metarData, analysis, windRoseData = {}) {
         this.initialize();
         
-        // Page 1: Title page with summary
+        console.log('🔄 Starting PDF generation with correct sequence...');
+        
+        // ===== PAGE 1: Title page + Station descriptions =====
+        console.log('📄 Page 1: Title and station descriptions');
         this.addTitlePage(metarData.startDate, analysis);
         
-        // Add station descriptions
+        // Add station descriptions (all on page 1)
         const stationsByCountry = this.groupStationsByCountry(analysis);
         for (const [countryCode, stations] of Object.entries(stationsByCountry)) {
             if (stations.length > 0) {
@@ -717,9 +720,10 @@ class ReferenceDustReportPDFGenerator {
             }
         }
         
-        // Page 2: Wind rose (if exists for first station with dust)
+        // ===== PAGE 2: Wind rose for first station =====
         const firstDustStation = analysis.stationData[0];
         if (firstDustStation && windRoseData[firstDustStation.station]) {
+            console.log(`📄 Page 2: Wind rose for ${firstDustStation.station}`);
             await this.addWindRosePage(
                 firstDustStation.station,
                 firstDustStation.station,
@@ -727,35 +731,46 @@ class ReferenceDustReportPDFGenerator {
             );
         }
         
-        // Page 3: Summary table
+        // ===== PAGE 3: Summary table =====
+        console.log('📄 Page 3: Summary table');
         this.doc.addPage();
         this.addLogoHeader();
         this.currentY = 30;
         this.addSummaryTable(analysis);
         
-        // Pages 4+: Station detail pages
+        // ===== PAGE 4+: Station detail pages (METAR tables) =====
+        console.log('📄 Pages 4+: Station details');
         const processedStations = new Set();
         analysis.stationData.forEach(record => {
             if (!processedStations.has(record.station)) {
                 processedStations.add(record.station);
+                console.log(`  ➜ Adding details for ${record.station}`);
                 this.addStationDetailPage(record.station, record.station, analysis);
-                
-                // Add wind rose page for this station if available
-                if (windRoseData[record.station]) {
-                    this.addWindRosePage(
-                        record.station,
-                        record.station,
-                        windRoseData[record.station]
-                    );
-                }
             }
         });
         
-        // Last page: Disclaimer
-        this.addDisclaimer();
+        // ===== LAST PAGE: Second wind rose + Disclaimer =====
+        if (firstDustStation && windRoseData[firstDustStation.station]) {
+            console.log(`📄 Last page: Wind rose + disclaimer for ${firstDustStation.station}`);
+            await this.addWindRosePage(
+                firstDustStation.station,
+                firstDustStation.station,
+                windRoseData[firstDustStation.station]
+            );
+            
+            // Add disclaimer on the same page as last wind rose
+            this.addDisclaimer();
+        } else {
+            // If no wind rose, add disclaimer on new page
+            this.doc.addPage();
+            this.addLogoHeader();
+            this.currentY = 30;
+            this.addDisclaimer();
+        }
         
         // Save PDF
         const dateStr = new Date(metarData.startDate).toISOString().split('T')[0].replace(/-/g, '');
+        console.log(`✅ Saving PDF: Dust_Detailed_Report_${dateStr}.pdf`);
         this.doc.save(`Dust_Detailed_Report_${dateStr}.pdf`);
     }
 
