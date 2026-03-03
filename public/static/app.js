@@ -75,6 +75,9 @@ function displayReport(data, analysis, reportDate) {
     document.getElementById('suspendedCount').textContent = analysis.byType.suspended;
     document.getElementById('statsCards').classList.remove('hidden');
     
+    // Display interactive map
+    displayMap(analysis);
+    
     let html = `
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">تقرير العواصف الغبارية والرملية</h1>
@@ -428,5 +431,50 @@ async function generateWindRoses(analysis) {
     } catch (error) {
         console.error('❌ Wind rose generation failed:', error);
         return {};
+    }
+}
+
+// Display Interactive Map
+function displayMap(analysis) {
+    console.log('🗺️ Displaying interactive map...');
+    
+    try {
+        const mapContainer = document.getElementById('mapContainer');
+        const mapElement = document.getElementById('dustMap');
+        
+        // Show map container
+        mapContainer.classList.remove('hidden');
+        
+        // Clear any existing map
+        mapElement.innerHTML = '';
+        
+        // Check if we have station data
+        if (!analysis.stationData || analysis.stationData.length === 0) {
+            mapElement.innerHTML = '<div class="flex items-center justify-center h-full bg-gray-100 rounded-lg"><p class="text-gray-500">لا توجد بيانات محطات لعرضها على الخريطة</p></div>';
+            return;
+        }
+        
+        // Initialize map generator
+        const mapGenerator = new DustStormMapGenerator();
+        mapGenerator.generateMap('dustMap', analysis);
+        
+        // Fit map to show all markers
+        setTimeout(() => {
+            mapGenerator.fitBounds();
+        }, 500);
+        
+        console.log('✅ Map displayed successfully');
+        
+    } catch (error) {
+        console.error('❌ Map display failed:', error);
+        const mapElement = document.getElementById('dustMap');
+        mapElement.innerHTML = `
+            <div class="flex items-center justify-center h-full bg-red-50 rounded-lg border border-red-200">
+                <p class="text-red-600">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    حدث خطأ في عرض الخريطة: ${error.message}
+                </p>
+            </div>
+        `;
     }
 }
