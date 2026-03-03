@@ -83,6 +83,14 @@ class DustStormMapGenerator {
 
     // Initialize map
     initializeMap(containerId) {
+        // Remove existing map if any
+        if (this.map) {
+            console.log('🧹 Removing existing map...');
+            this.map.remove();
+            this.map = null;
+            this.markers = [];
+        }
+        
         // Center on Middle East
         this.map = L.map(containerId).setView([25.0, 45.0], 5);
         
@@ -92,6 +100,7 @@ class DustStormMapGenerator {
             maxZoom: 18
         }).addTo(this.map);
         
+        console.log('✅ Map initialized successfully');
         return this.map;
     }
 

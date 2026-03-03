@@ -36,10 +36,18 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         return;
     }
     
-    // Show loading
+    // Show loading, hide previous results
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('reportOutput').classList.add('hidden');
     document.getElementById('statsCards').classList.add('hidden');
+    document.getElementById('mapContainer').classList.add('hidden');
+    
+    // Clean up previous map if exists
+    if (currentMapGenerator && currentMapGenerator.map) {
+        console.log('🧹 Cleaning up previous map before new report...');
+        currentMapGenerator.map.remove();
+        currentMapGenerator = null;
+    }
     
     try {
         // Fetch METAR data
@@ -448,6 +456,8 @@ async function generateWindRoses(analysis) {
 }
 
 // Display Interactive Map
+let currentMapGenerator = null;
+
 function displayMap(analysis) {
     console.log('🗺️ Displaying interactive map...');
     
@@ -461,19 +471,26 @@ function displayMap(analysis) {
         // Clear any existing map
         mapElement.innerHTML = '';
         
+        // Remove previous map generator if exists
+        if (currentMapGenerator && currentMapGenerator.map) {
+            console.log('🧹 Cleaning up previous map...');
+            currentMapGenerator.map.remove();
+            currentMapGenerator = null;
+        }
+        
         // Check if we have station data
         if (!analysis.stationData || analysis.stationData.length === 0) {
             mapElement.innerHTML = '<div class="flex items-center justify-center h-full bg-gray-100 rounded-lg"><p class="text-gray-500">لا توجد بيانات محطات لعرضها على الخريطة</p></div>';
             return;
         }
         
-        // Initialize map generator
-        const mapGenerator = new DustStormMapGenerator();
-        mapGenerator.generateMap('dustMap', analysis);
+        // Initialize new map generator
+        currentMapGenerator = new DustStormMapGenerator();
+        currentMapGenerator.generateMap('dustMap', analysis);
         
         // Fit map to show all markers
         setTimeout(() => {
-            mapGenerator.fitBounds();
+            currentMapGenerator.fitBounds();
         }, 500);
         
         console.log('✅ Map displayed successfully');
