@@ -22,9 +22,23 @@ class DustStormMapGenerator {
             'OEBH': [27.9082, 35.4309], // Bisha
             'OESH': [17.4676, 44.2266], // Sharurah
             'OEWD': [21.5027, 39.7007], // Wadi Dawasir
+            'OERR': [30.9066, 41.1382], // Arar
+            'OENG': [17.6114, 44.4192], // Najran
+            'OERB': [24.0611, 38.1123], // Rabigh
+            'OEBQ': [27.9667, 45.0333], // Buraydah
+            'OEAH': [27.5333, 36.4833], // Al Ahsa
+            'OETR': [27.4838, 38.7273], // Turaif
+            'OETF': [27.9000, 40.5333], // Taif
+            'OERF': [26.0333, 43.4667], // Rafha
+            'OEAO': [27.9000, 42.5833], // Al Qaisumah
+            'OEPS': [26.7500, 40.1000], // Pump Station
+            'OEKJ': [28.3333, 40.1000], // Al Jouf
+            'OEKK': [24.1333, 45.5167], // Kharj
+            'OEYN': [23.1500, 38.0667], // Yanbu
             
             // Kuwait
             'OKBK': [29.2267, 47.9689], // Kuwait City
+            'OKAJ': [28.9333, 48.2833], // Al Jahra
             
             // Bahrain
             'OBBI': [26.2708, 50.6336], // Bahrain
@@ -38,10 +52,14 @@ class DustStormMapGenerator {
             'OMSJ': [25.3280, 55.5174], // Sharjah
             'OMAL': [24.2617, 55.6092], // Al Ain
             'OMDW': [25.2378, 55.6725], // Al Dhafra
+            'OMFJ': [25.1122, 56.3240], // Fujairah
+            'OMRK': [25.6136, 55.9389], // Ras Al Khaimah
             
             // Oman
             'OOMS': [23.5933, 58.2844], // Muscat
             'OOSA': [17.0387, 54.0914], // Salalah
+            'OOSH': [23.6167, 56.5333], // Sohar
+            'OOKB': [22.6667, 58.8167], // Khasab
             
             // Yemen
             'OYAA': [15.4764, 44.2195], // Sanaa
