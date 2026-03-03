@@ -99,6 +99,44 @@ app.get('/api/networks', (c) => {
   return c.json({ networks })
 })
 
+// Generate wind rose for analysis data
+// Note: Actual wind rose generation requires Python backend
+// This endpoint prepares data and returns placeholder
+app.post('/api/generate-wind-rose', async (c) => {
+  try {
+    const { analysis } = await c.req.json()
+    
+    // Group stations and prepare data for wind rose generation
+    const stationGroups = {}
+    
+    if (analysis && analysis.stationData) {
+      analysis.stationData.forEach(record => {
+        const station = record.station
+        if (!stationGroups[station]) {
+          stationGroups[station] = []
+        }
+        stationGroups[station].push(record)
+      })
+    }
+    
+    // In production, this would call Python backend via subprocess or separate service
+    // For now, return structure indicating wind roses should be generated client-side
+    return c.json({
+      success: true,
+      message: 'Wind rose data prepared. Generate using Python backend or client-side library.',
+      stations: Object.keys(stationGroups),
+      stationData: stationGroups,
+      note: 'Use wind_rose_generator_enhanced.py for actual generation'
+    })
+    
+  } catch (error) {
+    return c.json({
+      success: false,
+      error: error.message
+    }, 500)
+  }
+})
+
 // =========================
 // Main Route
 // =========================
@@ -270,7 +308,10 @@ app.get('/', (c) => {
         <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+        <!-- Original PDF Generator -->
         <script src="/static/pdf-generator.js"></script>
+        <!-- Enhanced PDF Generator (matches reference report) -->
+        <script src="/static/pdf-generator-reference.js"></script>
         <script src="/static/app.js"></script>
     </body>
     </html>
