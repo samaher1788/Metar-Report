@@ -88,13 +88,13 @@ class ReferenceDustReportPDFGenerator {
         this.doc.text('Dust and Sandstorm Events in Saudi Arabia and the Region', this.margin, this.currentY);
         
         // Date
-        this.currentY += 8;
+        this.currentY += 4;
         this.doc.setFontSize(8);
         this.doc.setFont('helvetica', 'bold');
         this.doc.text(`Start Date: ${formattedDate}`, this.margin, this.currentY);
         
         // Summary paragraph
-        this.currentY += 8;
+        this.currentY += 4;
         this.doc.setFontSize(7);
         this.doc.setFont('helvetica', 'normal');
         
@@ -197,7 +197,7 @@ class ReferenceDustReportPDFGenerator {
         
         const stationText = `${countryName} – Station${stationCodes.length > 1 ? 's' : ''} ${stationCodes.join(', ')}`;
         this.doc.text(stationText, this.margin, this.currentY);
-        this.currentY += 8;
+        this.currentY += 4;
         
         // General characteristics
         this.doc.setFontSize(8);
@@ -226,10 +226,10 @@ class ReferenceDustReportPDFGenerator {
             
             // Phenomena
             this.doc.text(`• Phenomena: ${characteristics.phenomena.join(', ')}.`, this.margin + 5, this.currentY);
-            this.currentY += 10;
+            this.currentY += 5;
         } else {
             this.doc.text(`Limited dust activity was reported over ${countryName}.`, this.margin, this.currentY);
-            this.currentY += 10;
+            this.currentY += 5;
         }
     }
 
@@ -343,7 +343,7 @@ class ReferenceDustReportPDFGenerator {
         this.doc.setFontSize(7);
         this.doc.setFont('helvetica', 'bold');
         this.doc.text('Summary of Dust and Sandstorm Events in Saudi Arabia and the Region:', this.margin, this.currentY);
-        this.currentY += 8;
+        this.currentY += 4;
         
         // Prepare table data
         const tableData = [];
@@ -407,7 +407,7 @@ class ReferenceDustReportPDFGenerator {
         this.doc.text(`Total Reports in Saudi Arabia: ${totalInSaudi}`, this.margin, this.currentY);
         this.currentY += 6;
         this.doc.text(`Total Reports in the Region: ${totalInRegion}`, this.margin, this.currentY);
-        this.currentY += 8;
+        this.currentY += 4;
         
         // Add breakdown by phenomenon
         this.doc.setFont('helvetica', 'normal');
@@ -459,7 +459,7 @@ class ReferenceDustReportPDFGenerator {
         this.doc.setFont('helvetica', 'bold');
         const countryInfo = this.getCountryFromStation(stationCode);
         this.doc.text(`${countryInfo?.name || 'Unknown'} - Station ${stationCode}`, this.margin, this.currentY);
-        this.currentY += 10;
+        this.currentY += 5;
         
         // METAR section
         this.doc.setFontSize(8);
@@ -518,7 +518,7 @@ class ReferenceDustReportPDFGenerator {
         this.doc.setFont('helvetica', 'bold');
         this.doc.text(`Wind: ${summary.windRange} kt | Dir: ${summary.directionRange} | Min vis: ${summary.minVis} m | Phenomena: ${summary.phenomena}`, 
             this.margin, this.currentY);
-        this.currentY += 10;
+        this.currentY += 5;
     }
 
     // Add detailed METAR table for station
@@ -652,26 +652,6 @@ class ReferenceDustReportPDFGenerator {
     }
 
     // Add disclaimer (matching reference report)
-    addDisclaimer() {
-        if (this.currentY > this.pageHeight - 30) {
-            this.doc.addPage();
-            this.addLogoHeader();
-            this.currentY = 30;
-        }
-        
-        this.doc.setFontSize(8);
-        this.doc.setFont('helvetica', 'italic');
-        this.doc.setTextColor(100, 100, 100);
-        
-        const disclaimer = 'Note: This report provides a preliminary analysis of past weather data. It is not final and should be reviewed by a certified meteorologist for accuracy and context.';
-        const lines = this.doc.splitTextToSize(disclaimer, this.pageWidth - (2 * this.margin));
-        
-        lines.forEach(line => {
-            this.doc.text(line, this.margin, this.currentY);
-            this.currentY += 6;
-        });
-    }
-
     // Add wind rose page for station
     async addWindRosePage(stationCode, stationName, windRoseData) {
         this.doc.addPage();
@@ -682,7 +662,7 @@ class ReferenceDustReportPDFGenerator {
         this.doc.setFontSize(8);
         this.doc.setFont('helvetica', 'bold');
         this.doc.text(`Wind Rose - Station ${stationCode}`, this.pageWidth / 2, this.currentY, { align: 'center' });
-        this.currentY += 15;
+        this.currentY += 6;
         
         // Add wind rose image if available
         if (windRoseData && windRoseData.imageBase64) {
@@ -756,15 +736,6 @@ class ReferenceDustReportPDFGenerator {
                     windRoseData[stationCode]
                 );
             }
-            
-            // Add disclaimer after all wind roses
-            this.addDisclaimer();
-        } else {
-            // If no wind roses, add disclaimer on new page
-            this.doc.addPage();
-            this.addLogoHeader();
-            this.currentY = 30;
-            this.addDisclaimer();
         }
         
         // Save PDF
