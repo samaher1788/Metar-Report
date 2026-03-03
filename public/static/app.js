@@ -518,6 +518,25 @@ async function display3DMap(analysis) {
             return;
         }
         
+        // Convert stationData to grouped format for 3D map
+        console.log('📊 Converting station data for 3D map...');
+        const stationRecords = {};
+        analysis.stationData.forEach(record => {
+            const station = record.station;
+            if (!stationRecords[station]) {
+                stationRecords[station] = [];
+            }
+            stationRecords[station].push(record);
+        });
+        
+        // Create grouped station data
+        const groupedStationData = Object.entries(stationRecords).map(([station, records]) => ({
+            station: station,
+            records: records
+        }));
+        
+        console.log(`✅ Converted ${groupedStationData.length} stations with records`);
+        
         // Initialize 3D map generator
         map3DGenerator = new DustStorm3DMapGenerator();
         
@@ -535,14 +554,14 @@ async function display3DMap(analysis) {
         await map3DGenerator.initializeMap('dustMap3D');
         
         // Add station markers
-        analysis.stationData.forEach(station => {
+        groupedStationData.forEach(station => {
             if (station.records && station.records.length > 0) {
                 map3DGenerator.addStation3DMarker(station.station, station.records);
             }
         });
         
         // Add heatmap layer
-        map3DGenerator.addHeatmapLayer(analysis.stationData);
+        map3DGenerator.addHeatmapLayer(groupedStationData);
         
         // Fit map to show all markers
         setTimeout(() => {
