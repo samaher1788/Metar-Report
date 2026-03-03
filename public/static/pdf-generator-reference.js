@@ -699,11 +699,11 @@ class ReferenceDustReportPDFGenerator {
         }
     }
 
-    // Main generate function - CORRECT SEQUENCE
+    // Main generate function - ORIGINAL REFERENCE SEQUENCE
     async generateReport(metarData, analysis, windRoseData = {}) {
         this.initialize();
         
-        console.log('🔄 Starting PDF generation with correct sequence...');
+        console.log('🔄 Starting PDF generation (Original Reference Sequence)...');
         
         // ===== PAGE 1: Title page + Station descriptions =====
         console.log('📄 Page 1: Title and station descriptions');
@@ -720,48 +720,47 @@ class ReferenceDustReportPDFGenerator {
             }
         }
         
-        // ===== PAGE 2: Wind rose for first station =====
-        const firstDustStation = analysis.stationData[0];
-        if (firstDustStation && windRoseData[firstDustStation.station]) {
-            console.log(`📄 Page 2: Wind rose for ${firstDustStation.station}`);
-            await this.addWindRosePage(
-                firstDustStation.station,
-                firstDustStation.station,
-                windRoseData[firstDustStation.station]
-            );
-        }
-        
-        // ===== PAGE 3: Summary table =====
-        console.log('📄 Page 3: Summary table');
+        // ===== PAGE 2: Summary table (not wind rose!) =====
+        console.log('📄 Page 2: Summary table');
         this.doc.addPage();
         this.addLogoHeader();
         this.currentY = 30;
         this.addSummaryTable(analysis);
         
-        // ===== PAGE 4+: Station detail pages (METAR tables) =====
-        console.log('📄 Pages 4+: Station details');
+        // ===== PAGE 3+: Station detail pages (METAR tables) =====
+        console.log('📄 Pages 3+: Station details (METAR tables)');
         const processedStations = new Set();
         analysis.stationData.forEach(record => {
             if (!processedStations.has(record.station)) {
                 processedStations.add(record.station);
-                console.log(`  ➜ Adding details for ${record.station}`);
+                console.log(`  ➜ Adding METAR details for ${record.station}`);
                 this.addStationDetailPage(record.station, record.station, analysis);
             }
         });
         
-        // ===== LAST PAGE: Second wind rose + Disclaimer =====
-        if (firstDustStation && windRoseData[firstDustStation.station]) {
-            console.log(`📄 Last page: Wind rose + disclaimer for ${firstDustStation.station}`);
-            await this.addWindRosePage(
-                firstDustStation.station,
-                firstDustStation.station,
-                windRoseData[firstDustStation.station]
-            );
+        // ===== LAST PAGES: Wind roses for ALL stations (at the END only) =====
+        console.log('📄 Last pages: Wind roses for all stations');
+        const windRoseStations = [];
+        analysis.stationData.forEach(record => {
+            if (!windRoseStations.includes(record.station) && windRoseData[record.station]) {
+                windRoseStations.push(record.station);
+            }
+        });
+        
+        if (windRoseStations.length > 0) {
+            console.log(`  ➜ Adding ${windRoseStations.length} wind roses at the end`);
+            for (const stationCode of windRoseStations) {
+                await this.addWindRosePage(
+                    stationCode,
+                    stationCode,
+                    windRoseData[stationCode]
+                );
+            }
             
-            // Add disclaimer on the same page as last wind rose
+            // Add disclaimer after all wind roses
             this.addDisclaimer();
         } else {
-            // If no wind rose, add disclaimer on new page
+            // If no wind roses, add disclaimer on new page
             this.doc.addPage();
             this.addLogoHeader();
             this.currentY = 30;
