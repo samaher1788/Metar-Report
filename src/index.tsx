@@ -312,6 +312,8 @@ app.get('/', (c) => {
         <script src="/static/pdf-generator.js"></script>
         <!-- Enhanced PDF Generator (matches reference report) -->
         <script src="/static/pdf-generator-reference.js"></script>
+        <!-- Simple Wind Rose Generator (Client-Side Canvas) -->
+        <script src="/static/wind-rose-simple.js"></script>
         <script src="/static/app.js"></script>
     </body>
     </html>

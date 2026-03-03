@@ -63,7 +63,8 @@ class ReferenceDustReportPDFGenerator {
             const logoImg = document.getElementById('ncm-logo-img');
             if (logoImg && logoImg.complete) {
                 // Add logo in top left corner (matching reference report)
-                this.doc.addImage(logoImg, 'PNG', 10, 10, 30, 7.5);
+                // Increased size: 80mm width × 20mm height (larger and more visible)
+                this.doc.addImage(logoImg, 'PNG', 10, 10, 80, 20);
             }
         } catch (e) {
             console.warn('Logo not loaded:', e);
