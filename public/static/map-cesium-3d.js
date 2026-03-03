@@ -88,23 +88,17 @@ class CesiumGlobeMapGenerator {
         console.log('🌍 Initializing Cesium 3D Globe...');
         
         try {
-            // Set Cesium ion access token (using default public token)
-            Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJlYWE1OWUxNy1mMWZiLTQzYjYtYTQ0OS1kMWFjYmFkNjc5YzciLCJpZCI6NTc3MzMsImlhdCI6MTYyNzg0NTE4Mn0.XcKpgANiY19MC4bdFUXMVEBToBmqS8kuYpUlxJHYZxk';
-            
-            // Create terrain provider
-            const terrainProvider = await Cesium.CesiumTerrainProvider.fromIonAssetId(1, {
-                requestWaterMask: true,
-                requestVertexNormals: true
-            });
-            
+            // Use OpenStreetMap as base layer (completely free, no token needed)
             this.viewer = new Cesium.Viewer(containerId, {
-                // Imagery provider
-                baseLayer: Cesium.ImageryLayer.fromProviderAsync(
-                    Cesium.IonImageryProvider.fromAssetId(2)
+                // Use OpenStreetMap imagery (free)
+                baseLayer: new Cesium.ImageryLayer(
+                    new Cesium.OpenStreetMapImageryProvider({
+                        url: 'https://a.tile.openstreetmap.org/'
+                    })
                 ),
                 
-                // Terrain provider for 3D terrain
-                terrainProvider: terrainProvider,
+                // Use Ellipsoid terrain (no token needed, still 3D globe)
+                terrainProvider: new Cesium.EllipsoidTerrainProvider(),
                 
                 // UI options
                 baseLayerPicker: false,
