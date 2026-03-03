@@ -420,17 +420,32 @@ class DustStorm3DMapGenerator {
 
     // Add heatmap layer (innovative!)
     addHeatmapLayer(stationData) {
+        // Validate input
+        if (!stationData || !Array.isArray(stationData) || stationData.length === 0) {
+            console.warn('⚠️ No station data for heatmap');
+            return;
+        }
+        
         // Prepare data for heatmap
-        const features = stationData.map(station => ({
-            type: 'Feature',
-            properties: {
-                intensity: station.records.length
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: this.stationCoordinates[station.station]
-            }
-        })).filter(f => f.geometry.coordinates);
+        const features = stationData
+            .filter(station => station && station.station && station.records && Array.isArray(station.records))
+            .map(station => ({
+                type: 'Feature',
+                properties: {
+                    intensity: station.records.length
+                },
+                geometry: {
+                    type: 'Point',
+                    coordinates: this.stationCoordinates[station.station]
+                }
+            }))
+            .filter(f => f.geometry.coordinates);
+        
+        // Check if we have valid features
+        if (features.length === 0) {
+            console.warn('⚠️ No valid features for heatmap');
+            return;
+        }
         
         // Add source
         if (!this.map.getSource('dust-heatmap')) {
@@ -472,7 +487,7 @@ class DustStorm3DMapGenerator {
                 }
             }, 'waterway-label');
             
-            console.log('🔥 Heatmap layer added');
+            console.log(`🔥 Heatmap layer added with ${features.length} features`);
         }
     }
 
