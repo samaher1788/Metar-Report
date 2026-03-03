@@ -337,6 +337,8 @@ app.get('/', (c) => {
                 crossorigin=""></script>
         <!-- Map Generator -->
         <script src="/static/map-generator.js"></script>
+        <!-- Map Capture Utility for PDF -->
+        <script src="/static/map-capture.js"></script>
         <!-- Original PDF Generator -->
         <script src="/static/pdf-generator.js"></script>
         <!-- Enhanced PDF Generator (matches reference report) -->
