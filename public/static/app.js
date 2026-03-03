@@ -603,7 +603,6 @@ async function display3DMap(analysis) {
         `;
     }
 }
-}
 
 // Setup 3D Globe Control Buttons
 function setup3DMapControls() {
@@ -636,16 +635,4 @@ function setup3DMapControls() {
             }
         });
     }
-}
-    const resetViewBtn = document.getElementById('resetViewBtn');
-    if (resetViewBtn) {
-        resetViewBtn.addEventListener('click', () => {
-            if (map3DGenerator) {
-                map3DGenerator.fitBounds();
-                console.log('🔄 View reset to default');
-            }
-        });
-    }
-    
-    console.log('✅ 3D Map controls setup complete');
 }
