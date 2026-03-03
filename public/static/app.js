@@ -465,6 +465,9 @@ function displayMap(analysis) {
         
         console.log('✅ Map displayed successfully');
         
+        // Also display 3D map
+        display3DMap(analysis);
+        
     } catch (error) {
         console.error('❌ Map display failed:', error);
         const mapElement = document.getElementById('dustMap');
@@ -477,4 +480,145 @@ function displayMap(analysis) {
             </div>
         `;
     }
+}
+
+// Display 3D Interactive Map with Terrain
+let map3DGenerator = null;
+
+async function display3DMap(analysis) {
+    console.log('🏔️ Displaying 3D map with terrain...');
+    
+    try {
+        const map3DContainer = document.getElementById('map3DContainer');
+        const map3DElement = document.getElementById('dustMap3D');
+        
+        // Show 3D map container
+        map3DContainer.classList.remove('hidden');
+        
+        // Clear any existing map
+        map3DElement.innerHTML = '';
+        
+        // Check if Mapbox GL is loaded
+        if (typeof mapboxgl === 'undefined') {
+            console.error('❌ Mapbox GL JS not loaded');
+            map3DElement.innerHTML = `
+                <div class="flex items-center justify-center h-full bg-yellow-50 rounded-lg border border-yellow-200">
+                    <p class="text-yellow-700">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        لم يتم تحميل Mapbox GL JS. يرجى تحديث الصفحة.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Check if we have station data
+        if (!analysis.stationData || analysis.stationData.length === 0) {
+            map3DElement.innerHTML = '<div class="flex items-center justify-center h-full bg-gray-100 rounded-lg"><p class="text-gray-500">لا توجد بيانات محطات لعرضها على الخريطة</p></div>';
+            return;
+        }
+        
+        // Initialize 3D map generator
+        map3DGenerator = new DustStorm3DMapGenerator();
+        
+        // Show loading indicator
+        map3DElement.innerHTML = `
+            <div class="flex items-center justify-center h-full bg-gray-50 rounded-lg">
+                <div class="text-center">
+                    <div class="loading mx-auto mb-4"></div>
+                    <p class="text-gray-600">جاري تحميل الخريطة ثلاثية الأبعاد...</p>
+                </div>
+            </div>
+        `;
+        
+        // Initialize map
+        await map3DGenerator.initializeMap('dustMap3D');
+        
+        // Add station markers
+        analysis.stationData.forEach(station => {
+            if (station.records && station.records.length > 0) {
+                map3DGenerator.addStation3DMarker(station.station, station.records);
+            }
+        });
+        
+        // Add heatmap layer
+        map3DGenerator.addHeatmapLayer(analysis.stationData);
+        
+        // Fit map to show all markers
+        setTimeout(() => {
+            map3DGenerator.fitBounds();
+        }, 1000);
+        
+        // Setup control buttons
+        setup3DMapControls();
+        
+        console.log('✅ 3D Map displayed successfully with terrain');
+        
+    } catch (error) {
+        console.error('❌ 3D Map display failed:', error);
+        const map3DElement = document.getElementById('dustMap3D');
+        map3DElement.innerHTML = `
+            <div class="flex items-center justify-center h-full bg-red-50 rounded-lg border border-red-200">
+                <p class="text-red-600">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    حدث خطأ في عرض الخريطة ثلاثية الأبعاد: ${error.message}
+                </p>
+            </div>
+        `;
+    }
+}
+
+// Setup 3D Map Control Buttons
+function setup3DMapControls() {
+    // Toggle rotation button
+    const toggleRotationBtn = document.getElementById('toggleRotationBtn');
+    if (toggleRotationBtn) {
+        toggleRotationBtn.addEventListener('click', () => {
+            if (map3DGenerator) {
+                map3DGenerator.toggleAutoRotation();
+                const icon = toggleRotationBtn.querySelector('i');
+                if (map3DGenerator.isRotating) {
+                    toggleRotationBtn.classList.add('bg-green-600');
+                    toggleRotationBtn.classList.remove('bg-blue-600');
+                    icon.classList.add('fa-spin');
+                } else {
+                    toggleRotationBtn.classList.remove('bg-green-600');
+                    toggleRotationBtn.classList.add('bg-blue-600');
+                    icon.classList.remove('fa-spin');
+                }
+            }
+        });
+    }
+    
+    // Toggle heatmap button
+    const toggleHeatmapBtn = document.getElementById('toggleHeatmapBtn');
+    if (toggleHeatmapBtn) {
+        let heatmapVisible = true;
+        toggleHeatmapBtn.addEventListener('click', () => {
+            if (map3DGenerator) {
+                map3DGenerator.toggleHeatmap();
+                heatmapVisible = !heatmapVisible;
+                if (heatmapVisible) {
+                    toggleHeatmapBtn.classList.add('bg-purple-600');
+                    toggleHeatmapBtn.classList.remove('bg-gray-500');
+                } else {
+                    toggleHeatmapBtn.classList.remove('bg-purple-600');
+                    toggleHeatmapBtn.classList.add('bg-gray-500');
+                }
+            }
+        });
+    }
+    
+    // Reset view button
+    const resetViewBtn = document.getElementById('resetViewBtn');
+    if (resetViewBtn) {
+        resetViewBtn.addEventListener('click', () => {
+            if (map3DGenerator) {
+                map3DGenerator.fitBounds();
+                console.log('🔄 View reset to default');
+            }
+        });
+    }
+    
+    console.log('✅ 3D Map controls setup complete');
 }

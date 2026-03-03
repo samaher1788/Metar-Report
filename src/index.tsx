@@ -155,6 +155,9 @@ app.get('/', (c) => {
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
               integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
               crossorigin=""/>
+        <!-- Mapbox GL JS for 3D maps -->
+        <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+        <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
         <style>
           @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
           body {
@@ -268,6 +271,42 @@ app.get('/', (c) => {
                 <div id="dustMap" class="shadow-inner"></div>
             </div>
 
+            <!-- 3D Map with Terrain -->
+            <div id="map3DContainer" class="hidden bg-white rounded-xl shadow-lg p-6 mb-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-mountain text-blue-600"></i>
+                        خريطة ثلاثية الأبعاد مع التضاريس
+                    </h2>
+                    <div class="flex gap-2">
+                        <button id="toggleRotationBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md text-sm">
+                            <i class="fas fa-sync-alt mr-1"></i>
+                            دوران تلقائي
+                        </button>
+                        <button id="toggleHeatmapBtn" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors shadow-md text-sm">
+                            <i class="fas fa-fire mr-1"></i>
+                            خريطة حرارية
+                        </button>
+                        <button id="resetViewBtn" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors shadow-md text-sm">
+                            <i class="fas fa-undo mr-1"></i>
+                            إعادة الضبط
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4 text-sm">
+                    <i class="fas fa-info-circle text-blue-500 mr-1"></i>
+                    استخدم الماوس للتحكم: سحب للتدوير، عجلة للتكبير، Ctrl+سحب للإمالة
+                </p>
+                <div id="dustMap3D" style="height: 700px; width: 100%; border-radius: 12px;" class="shadow-inner"></div>
+                <div class="mt-4 bg-blue-50 border-r-4 border-blue-600 p-4 rounded-lg">
+                    <p class="text-sm text-gray-700">
+                        <strong>💡 نصائح:</strong>
+                        الخريطة ثلاثية الأبعاد تعرض التضاريس الحقيقية للمنطقة مع ارتفاع مضخم 1.5× للوضوح. 
+                        يمكنك استخدام أدوات التحكم للتنقل والدوران والإمالة لرؤية أفضل.
+                    </p>
+                </div>
+            </div>
+
             <!-- Report Output -->
             <div id="reportOutput" class="hidden bg-white rounded-xl shadow-lg p-8">
                 <div class="flex justify-between items-center mb-6">
@@ -337,6 +376,8 @@ app.get('/', (c) => {
                 crossorigin=""></script>
         <!-- Map Generator -->
         <script src="/static/map-generator.js"></script>
+        <!-- 3D Map Generator with Terrain -->
+        <script src="/static/map-3d-generator.js"></script>
         <!-- Original PDF Generator -->
         <script src="/static/pdf-generator.js"></script>
         <!-- Enhanced PDF Generator (matches reference report) -->
