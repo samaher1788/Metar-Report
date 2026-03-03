@@ -1,5 +1,5 @@
 {
-  "name": "dust-storm-reporter",
+  "name": "meta-report",
   "compatibility_date": "2026-03-03",
   "main": "dist/_worker.js"
 }
