@@ -1,236 +1,172 @@
-# إصلاح خطأ Oracle - Fixed SQL Scripts
+# 🔧 حل مشكلة ORA-00922 - دليل خطوة بخطوة
+
+---
 
 ## ❌ المشكلة:
 ```
-ORA-00922: missing or invalid option
+Error at line 19/2: ORA-00922: missing or invalid option
 ```
 
-السبب: `CURRENT_TIMESTAMP` لا يعمل كـ DEFAULT في بعض إصدارات Oracle.
+## ✅ الحل:
+
+المشكلة في `CURRENT_TIMESTAMP` - يجب استخدام `SYSTIMESTAMP` في Oracle.
 
 ---
 
-## ✅ الحل الصحيح:
+## 📋 الطريقة الصحيحة:
 
-### الطريقة 1: استخدام SYSTIMESTAMP
+### الخيار 1️⃣: استخدم ملف `oracle_tables.sql` (محدّث)
 
-```sql
--- حذف الجدول إذا كان موجود
-DROP TABLE NETWORKS;
+انسخ الملف `oracle_tables.sql` والصقه في **SQL Commands** ونفّذه.
 
--- إنشاء الجدول بشكل صحيح
-CREATE TABLE NETWORKS (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    NETWORK_CODE VARCHAR2(20) UNIQUE NOT NULL,
-    COUNTRY_NAME_EN VARCHAR2(100),
-    COUNTRY_NAME_AR VARCHAR2(100),
-    IS_ACTIVE NUMBER(1) DEFAULT 1,
-    CREATED_DATE TIMESTAMP DEFAULT SYSTIMESTAMP  -- استخدم SYSTIMESTAMP بدلاً من CURRENT_TIMESTAMP
-);
-
--- إدراج البيانات
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('SA__ASOS', 'Saudi Arabia', 'السعودية');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('AE__ASOS', 'United Arab Emirates', 'الإمارات');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('KW__ASOS', 'Kuwait', 'الكويت');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('JO__ASOS', 'Jordan', 'الأردن');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('OM__ASOS', 'Oman', 'عمان');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('BH__ASOS', 'Bahrain', 'البحرين');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('QA__ASOS', 'Qatar', 'قطر');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('IQ__ASOS', 'Iraq', 'العراق');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('YE__ASOS', 'Yemen', 'اليمن');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('SY__ASOS', 'Syria', 'سوريا');
-
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR) 
-VALUES ('IR__ASOS', 'Iran', 'إيران');
-
-COMMIT;
-
--- التحقق
-SELECT * FROM NETWORKS;
-```
+✅ **تم تصحيح:**
+- `CURRENT_TIMESTAMP` → `SYSTIMESTAMP`
+- تمت إضافة جميع الـ Indexes
+- تمت إضافة جميع الـ Constraints
 
 ---
 
-### الطريقة 2: استخدام SYSDATE (للتاريخ فقط بدون وقت دقيق)
+### الخيار 2️⃣: استخدم `oracle_tables_simple.sql` (أمر أمر)
+
+إذا كانت المشكلة مستمرة، استخدم النسخة المبسطة:
 
 ```sql
-CREATE TABLE NETWORKS (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    NETWORK_CODE VARCHAR2(20) UNIQUE NOT NULL,
-    COUNTRY_NAME_EN VARCHAR2(100),
-    COUNTRY_NAME_AR VARCHAR2(100),
-    IS_ACTIVE NUMBER(1) DEFAULT 1,
-    CREATED_DATE DATE DEFAULT SYSDATE  -- أبسط وأسرع
-);
-```
-
----
-
-### الطريقة 3: بدون DEFAULT (إضافة يدوية)
-
-```sql
-CREATE TABLE NETWORKS (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    NETWORK_CODE VARCHAR2(20) UNIQUE NOT NULL,
-    COUNTRY_NAME_EN VARCHAR2(100),
-    COUNTRY_NAME_AR VARCHAR2(100),
-    IS_ACTIVE NUMBER(1) DEFAULT 1,
-    CREATED_DATE TIMESTAMP
-);
-
--- عند الإدراج، أضيفي التاريخ يدوياً
-INSERT INTO NETWORKS (NETWORK_CODE, COUNTRY_NAME_EN, COUNTRY_NAME_AR, CREATED_DATE) 
-VALUES ('SA__ASOS', 'Saudi Arabia', 'السعودية', SYSTIMESTAMP);
-```
-
----
-
-## 📋 جميع الجداول المصلحة:
-
-### 1. جدول METAR_DATA
-
-```sql
-CREATE TABLE METAR_DATA (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    STATION VARCHAR2(10),
-    VALID_TIME TIMESTAMP,
-    TEMPERATURE NUMBER(5,1),
-    DEWPOINT NUMBER(5,1),
+-- 1️⃣ أنشئ الجدول أولاً (بدون constraints)
+CREATE TABLE METAR_REPORTS (
+    REPORT_ID NUMBER,
+    STATION_CODE VARCHAR2(10),
+    OBSERVATION_TIME TIMESTAMP,
+    LATITUDE NUMBER(10,6),
+    LONGITUDE NUMBER(10,6),
+    TEMPERATURE NUMBER(5,2),
+    DEW_POINT NUMBER(5,2),
     WIND_DIRECTION NUMBER(3),
-    WIND_SPEED NUMBER(5,1),
+    WIND_SPEED NUMBER(5,2),
     VISIBILITY NUMBER(10,2),
-    WEATHER_CODES VARCHAR2(200),
-    LATITUDE NUMBER(10,6),
-    LONGITUDE NUMBER(10,6),
+    PRESSURE NUMBER(10,2),
+    WEATHER_CODES VARCHAR2(100),
+    RAW_METAR VARCHAR2(500),
+    NETWORK VARCHAR2(20),
     COUNTRY_CODE VARCHAR2(5),
-    FETCH_DATE TIMESTAMP DEFAULT SYSTIMESTAMP  -- مصلح
+    CREATED_AT TIMESTAMP
 );
 
-CREATE INDEX IDX_METAR_STATION ON METAR_DATA(STATION);
-CREATE INDEX IDX_METAR_TIME ON METAR_DATA(VALID_TIME);
+-- 2️⃣ أضف Primary Key
+ALTER TABLE METAR_REPORTS ADD CONSTRAINT PK_METAR_REPORTS PRIMARY KEY (REPORT_ID);
+
+-- 3️⃣ أضف Unique Constraint
+ALTER TABLE METAR_REPORTS ADD CONSTRAINT UK_METAR UNIQUE (STATION_CODE, OBSERVATION_TIME);
+
+-- 4️⃣ أضف Not Null
+ALTER TABLE METAR_REPORTS MODIFY STATION_CODE NOT NULL;
+ALTER TABLE METAR_REPORTS MODIFY OBSERVATION_TIME NOT NULL;
+
+-- 5️⃣ أنشئ Sequence
+CREATE SEQUENCE METAR_REPORTS_SEQ START WITH 1 INCREMENT BY 1;
+
+-- 6️⃣ أنشئ Indexes
+CREATE INDEX IDX_METAR_STATION ON METAR_REPORTS(STATION_CODE);
+CREATE INDEX IDX_METAR_TIME ON METAR_REPORTS(OBSERVATION_TIME);
+CREATE INDEX IDX_METAR_WEATHER ON METAR_REPORTS(WEATHER_CODES);
+CREATE INDEX IDX_METAR_COUNTRY ON METAR_REPORTS(COUNTRY_CODE);
 ```
 
 ---
 
-### 2. جدول DUST_EVENTS
+## 🎯 خطوات التنفيذ في Oracle APEX:
+
+### 1️⃣ افتح SQL Commands:
+```
+SQL Workshop → SQL Commands
+```
+
+### 2️⃣ انسخ السكريبت:
+- من ملف `oracle_tables.sql` (الخيار الأول)
+- أو من `oracle_tables_simple.sql` (الخيار الثاني)
+
+### 3️⃣ الصق في SQL Commands
+
+### 4️⃣ اضغط "Run"
+
+### 5️⃣ تحقق من النتيجة:
+```sql
+-- يجب أن ترى:
+SELECT COUNT(*) FROM METAR_REPORTS; -- 0 rows
+SELECT COUNT(*) FROM DUST_PHENOMENA; -- 0 rows
+SELECT COUNT(*) FROM STATIONS; -- 0 rows
+SELECT COUNT(*) FROM DAILY_STATISTICS; -- 0 rows
+```
+
+---
+
+## 🔍 استكشاف الأخطاء:
+
+### إذا استمرت المشكلة:
+
+#### خطأ: `ORA-00922`
+**السبب:** استخدام `CURRENT_TIMESTAMP`  
+**الحل:** استخدم `SYSTIMESTAMP` أو احذف `DEFAULT` كلياً
+
+#### خطأ: `ORA-00955: name is already used`
+**السبب:** الجدول موجود بالفعل  
+**الحل:** احذف الجدول أولاً:
+```sql
+DROP TABLE DUST_PHENOMENA CASCADE CONSTRAINTS;
+DROP TABLE METAR_REPORTS CASCADE CONSTRAINTS;
+DROP TABLE STATIONS CASCADE CONSTRAINTS;
+DROP TABLE DAILY_STATISTICS CASCADE CONSTRAINTS;
+
+DROP SEQUENCE METAR_REPORTS_SEQ;
+DROP SEQUENCE DUST_PHENOMENA_SEQ;
+DROP SEQUENCE STATIONS_SEQ;
+DROP SEQUENCE DAILY_STATISTICS_SEQ;
+```
+
+#### خطأ: `ORA-02264: name already used by constraint`
+**السبب:** Constraint بنفس الاسم موجود  
+**الحل:** غيّر أسماء الـ Constraints:
+```sql
+-- بدلاً من PK_METAR_REPORTS
+-- استخدم PK_METAR_REPORTS_V2
+```
+
+---
+
+## ✅ التحقق من النجاح:
+
+بعد التنفيذ، نفّذ:
 
 ```sql
-CREATE TABLE DUST_EVENTS (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    EVENT_DATE DATE NOT NULL,
-    STATION_CODE VARCHAR2(10) NOT NULL,
-    COUNTRY_CODE VARCHAR2(5),
-    EVENT_TYPE VARCHAR2(20),
-    EVENT_SEVERITY VARCHAR2(20),
-    VISIBILITY_MIN NUMBER(10,2),
-    WIND_SPEED_MAX NUMBER(5,1),
-    DURATION_MINUTES NUMBER(10),
-    CREATED_DATE TIMESTAMP DEFAULT SYSTIMESTAMP  -- مصلح
-);
+-- عرض جميع الجداول
+SELECT TABLE_NAME FROM USER_TABLES 
+WHERE TABLE_NAME IN ('METAR_REPORTS', 'DUST_PHENOMENA', 'STATIONS', 'DAILY_STATISTICS');
 
-CREATE INDEX IDX_DUST_DATE ON DUST_EVENTS(EVENT_DATE);
-CREATE INDEX IDX_DUST_STATION ON DUST_EVENTS(STATION_CODE);
+-- عرض جميع الـ Sequences
+SELECT SEQUENCE_NAME FROM USER_SEQUENCES 
+WHERE SEQUENCE_NAME LIKE '%METAR%' OR SEQUENCE_NAME LIKE '%DUST%' OR SEQUENCE_NAME LIKE '%STATION%';
+
+-- عرض جميع الـ Indexes
+SELECT INDEX_NAME, TABLE_NAME FROM USER_INDEXES 
+WHERE TABLE_NAME IN ('METAR_REPORTS', 'DUST_PHENOMENA', 'STATIONS', 'DAILY_STATISTICS');
+```
+
+### النتيجة المتوقعة:
+```
+✅ 4 جداول
+✅ 4 sequences
+✅ 14 indexes
+✅ 4 primary keys
+✅ 2 unique constraints
+✅ 1 foreign key
 ```
 
 ---
 
-### 3. جدول DAILY_STATISTICS
+## 📞 إذا احتجت مساعدة:
 
-```sql
-CREATE TABLE DAILY_STATISTICS (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    REPORT_DATE DATE NOT NULL,
-    NETWORK_CODE VARCHAR2(20),
-    TOTAL_REPORTS NUMBER(10),
-    DUST_REPORTS NUMBER(10),
-    BLOWING_DUST NUMBER(10),
-    SUSPENDED_DUST NUMBER(10),
-    DUST_STORMS NUMBER(10),
-    SANDSTORMS NUMBER(10),
-    COUNTRIES_AFFECTED NUMBER(5),
-    CREATED_DATE TIMESTAMP DEFAULT SYSTIMESTAMP,  -- مصلح
-    CONSTRAINT UK_DAILY_STATS UNIQUE (REPORT_DATE, NETWORK_CODE)
-);
-```
+أرسل لي:
+1. نص الخطأ الكامل
+2. رقم السطر
+3. Oracle Database Version (من SQL Workshop → About)
 
----
-
-### 4. جدول STATION_INFO
-
-```sql
-CREATE TABLE STATION_INFO (
-    ID NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    STATION_CODE VARCHAR2(10) UNIQUE NOT NULL,
-    STATION_NAME VARCHAR2(100),
-    COUNTRY_CODE VARCHAR2(5),
-    COUNTRY_NAME VARCHAR2(50),
-    LATITUDE NUMBER(10,6),
-    LONGITUDE NUMBER(10,6),
-    ELEVATION NUMBER(10,2),
-    NETWORK_CODE VARCHAR2(20),
-    IS_ACTIVE NUMBER(1) DEFAULT 1,
-    CREATED_DATE TIMESTAMP DEFAULT SYSTIMESTAMP  -- مصلح
-);
-```
-
----
-
-## 🔍 الفرق بين الخيارات:
-
-| الخيار | الدقة | السرعة | التوافق |
-|--------|-------|---------|----------|
-| `SYSTIMESTAMP` | ✅ عالية (microseconds) | ⚠️ متوسط | ✅ جميع الإصدارات |
-| `SYSDATE` | ⚠️ عادية (seconds) | ✅ سريع | ✅ جميع الإصدارات |
-| `CURRENT_TIMESTAMP` | ✅ عالية | ⚠️ متوسط | ❌ لا يعمل كـ DEFAULT |
-
----
-
-## ✅ التوصية:
-
-**استخدمي `SYSTIMESTAMP`** - يعمل في جميع الإصدارات ودقيق
-
----
-
-## 🧪 اختبار:
-
-```sql
--- اختبار الجدول
-SELECT * FROM NETWORKS ORDER BY ID;
-
--- اختبار التاريخ
-SELECT ID, NETWORK_CODE, CREATED_DATE FROM NETWORKS;
-
--- عدد السجلات
-SELECT COUNT(*) as TOTAL FROM NETWORKS;
-```
-
----
-
-## 💡 نصيحة:
-
-إذا واجهتِ أي خطأ `ORA-XXXXX`:
-1. انسخي رقم الخطأ
-2. ابحثي في Google عن: `Oracle ORA-00922 solution`
-3. أو أرسليه لي وسأحله فوراً! 🚀
-
----
-
-**الآن جربي الكود المصلح أعلاه! ✅**
+**سأحلها فوراً! 🚀**
