@@ -67,6 +67,23 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         // Display report
         displayReport(currentData, currentAnalysis, startDate);
         
+        // 🔄 Auto-sync to Oracle (if enabled)
+        if (window.OracleSync && window.OracleSync.config.AUTO_SYNC_ENABLED) {
+            console.log('🔄 تفعيل الحفظ التلقائي في Oracle...');
+            try {
+                const syncResult = await window.OracleSync.autoSyncAfterAnalysis(
+                    currentAnalysis,
+                    fetchResponse.data.data
+                );
+                if (syncResult.success) {
+                    console.log('✅ تم الحفظ التلقائي بنجاح');
+                }
+            } catch (syncError) {
+                console.warn('⚠️ فشل الحفظ التلقائي:', syncError);
+                // Don't alert user - just log the error
+            }
+        }
+        
     } catch (error) {
         console.error('Error:', error);
         alert('حدث خطأ: ' + error.message);
